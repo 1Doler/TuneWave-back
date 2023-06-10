@@ -1,4 +1,4 @@
-import { validationResult } from "express-validator";
+import { param, validationResult } from "express-validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -87,13 +87,36 @@ export const login = async (req, res) => {
       expires: new Date(Date.now() + 900000),
       httpOnly: false,
     });
-    res.status(200).json({
-      message: "Вы успешно авторизовались",
-      userData,
-    });
+    res.status(200).json(userData);
   } catch (error) {
     res.status(500).json({
       message: "Не удалось авторизоваться",
     });
   }
+};
+
+export const updateUser = async (req, res) => {
+  try {
+    const { id, ...userData } = req.body;
+    const user = await UserModel.findOneAndUpdate(
+      { _id: id },
+      {
+        ...userData,
+      }
+    );
+    const { passwordHash, ...userInfo } = user;
+    res.status(200).json(userInfo);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      messgae: "Не обновить данные",
+    });
+  }
+};
+
+export const allUsers = async (req, res) => {
+  const user = await UserModel.find({});
+  res.status(200).json({
+    user,
+  });
 };

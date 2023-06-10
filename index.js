@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 
 import { loginValidation, registerValidation } from "./validations/auth.js";
 
-import { UserController } from "./controllers/index.js";
+import { FileController, UserController } from "./controllers/index.js";
 
 dotenv.config();
 
@@ -33,7 +33,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: process.env.ORIGIN_URL || "*",
+    origin: process.env.ORIGIN_URL || "http://localhost:3000",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   })
@@ -44,7 +44,12 @@ app.get("/", (req, res) => {
 });
 
 app.post("/auth/login", loginValidation, UserController.login);
+app.get("/auth/users", loginValidation, UserController.allUsers);
+app.post("/auth/user", UserController.updateUser);
 app.post("/auth/register", registerValidation, UserController.register);
+
+app.post("/upload/:name/:folder", FileController.uploadFile);
+app.get("/upload/", FileController.getUrlFile);
 
 app.listen(process.env.PORT || 4444, err => {
   if (err) {
